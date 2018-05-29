@@ -1,0 +1,28 @@
+{
+  "name": "smarttoys",
+  "version": "1.0.0",
+  "description": "Smart Toy prototype to help kids grasp conditional programming and sensors",
+  "main": "index.html",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/t0dorakis/smarttoys.git"
+  },
+  "keywords": [
+    "IOT",
+    "toy",
+    "science",
+    "prototype"
+  ],
+  "author": "Theodor Hillmann",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/t0dorakis/smarttoys/issues"
+  },
+  "homepage": "https://github.com/t0dorakis/smarttoys#readme"
+}
