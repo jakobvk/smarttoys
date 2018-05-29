@@ -20,36 +20,22 @@
  created for arduino 25 Nov 2012
  by Tom Igoe
 
-ported for sparkfun esp32 
+ported for sparkfun esp32
 31.01.2017 by Jan Hendrik Berlin
- 
+
  */
 
 #include <WiFi.h>
 #include <Wire.h>
-#include "Adafruit_DRV2605.h"
 
-Adafruit_DRV2605 drv;
-
-const char* ssid     = "Ingo Lochmahr";
-const char* password = "Pforzheim030";
+char* ssid     = "Ingo Lochmahr";
+char* password = "Pforzheim030";
 
 WiFiServer server(80);
 
 void setup()
 {
 
-  // DRV
-
-  drv.begin();
-  
-  drv.selectLibrary(1);
-  
-  // I2C trigger by sending 'go' command 
-  // default, internal trigger when sending GO command
-  drv.setMode(DRV2605_MODE_INTTRIG); 
-
-  ///////
     Serial.begin(115200);
     pinMode(12, OUTPUT);      // set the LED pin mode
 
@@ -73,7 +59,7 @@ void setup()
     Serial.println("WiFi connected.");
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
-    
+
     server.begin();
 
 }
@@ -118,24 +104,9 @@ void loop(){
 
         // Check to see if the client request was "GET /H" or "GET /L":
         if (currentLine.endsWith("GET /H")) {
-         
+
           digitalWrite(12, HIGH);               // GET /H turns the LED on
 
-          // DRV
-            Serial.print("Effect #"); Serial.println(effect);
-
-  // set the effect to play
-  drv.setWaveform(0, effect);  // play effect 
-  drv.setWaveform(1, 0);       // end waveform
-
-  // play the effect!
-  drv.go();
-
-  // wait a bit
-  delay(500);
-
-  effect++;
-  if (effect > 117) effect = 1;
         }
         if (currentLine.endsWith("GET /L")) {
           digitalWrite(12, LOW);                // GET /L turns the LED off
