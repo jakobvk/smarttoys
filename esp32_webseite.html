@@ -1,0 +1,167 @@
+  <script language = 'JavaScript'>
+  document.addEventListener('DOMContentLoaded', function() {
+
+/*/// GET FUNCTION */
+    var HttpClient = function() {
+        this.get = function(aUrl, aCallback) {
+            var anHttpRequest = new XMLHttpRequest();
+            anHttpRequest.onreadystatechange = function() {
+                if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200);
+                    aCallback(anHttpRequest.responseText);
+            };
+
+            anHttpRequest.open( 'GET', aUrl, true );
+            anHttpRequest.send( null );
+        };
+    };
+
+
+    console.log('loaded');
+
+      var buttons = ['circle1', 'circle2', 'circle3', 'box1', 'box2', 'box3', 'pyramid1', 'pyramid2', 'pyramid3'];
+      var notChosen = ['circle1', 'circle2', 'circle3', 'box1', 'box2', 'box3', 'pyramid1', 'pyramid2', 'pyramid3'];
+      var chosen1 = [];
+      var chosen2 = [];
+      var chosen3 = [];
+
+      buttons.forEach(function(button) {
+        document.getElementById(button).addEventListener('click', function() {
+          /*/// add choice */
+          if(button === 'circle1' || button === 'box1' || button === 'pyramid1') {
+            chosen1.forEach(function(thing) {
+              document.getElementById(thing).classList.remove('active');
+            });
+            document.getElementById(button).classList.toggle('active');
+            chosen1 = [];
+            chosen1.push(button);
+            notChosen.splice(button);
+          } else if(button === 'circle2' || button === 'box2' || button === 'pyramid2') {
+            chosen2.forEach(function(thing) {
+              document.getElementById(thing).classList.remove('active');
+            });
+            document.getElementById(button).classList.toggle('active');
+            chosen2 = [];
+            chosen2.push(button);
+            notChosen.splice(button);
+          } else if(button === 'circle3' || button === 'box3' || button === 'pyramid3'){
+            chosen3.forEach(function(thing) {
+              document.getElementById(thing).classList.remove('active');
+            });
+            document.getElementById(button).classList.toggle('active');
+            chosen3 = [];
+            chosen3.push(button);
+            notChosen.splice(button);
+          };
+
+          /*/// function called when things are chosen */
+          if(chosen1.length > 0 && chosen2.length > 0 && chosen3.length > 0) {
+            var getString = '/' + chosen1[0] + '+' + chosen2[0] + '+' +  chosen3[0];
+            var client = new HttpClient();
+            client.get(getString, function(response) {
+              /*/// do something with response */
+            });
+          };
+        });
+      });
+
+});
+
+  </script>
+
+  <div class='flex-container'>
+
+    <div class='row'>
+      <div class='circle' id='circle1'>
+        <span></span>
+      </div>
+      <div class='circle' id='circle2'>
+        <span></span>
+      </div>
+      <div class='circle' id='circle3'>
+        <span></span>
+      </div>
+    </div>
+
+    <div class='row'>
+      <div class='box' id='box1'>
+        <span></span>
+      </div>
+      <div class='box' id='box2'>
+        <span></span>
+      </div>
+      <div class='box' id='box3'>
+        <span></span>
+      </div>
+    </div>
+
+    <div class='row'>
+      <div class='pyramid' id='pyramid1'>
+        <span class='border'></span>
+      </div>
+      <div class='pyramid' id='pyramid2'>
+        <span class='border'></span>
+      </div>
+      <div class='pyramid' id='pyramid3'>
+        <span class='border'></span>
+      </div>
+    </div>
+
+  </div>
+
+
+<style media='screen'>
+  .container {
+    display: flex;
+    flex-flow: column;
+    justify-content: space-around;
+  }
+  .row {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-around;
+  }
+  .row :nth-child(3) {
+    border-left: 10px black solid;
+  }
+  .circle, .pyramid, .box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 33vh;
+    width: 33vw;
+
+  }
+  .pyramid span {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 95px 190px 95px;
+    border-color: transparent transparent #bbb transparent;
+  }
+
+  .box span {
+    height: 180px;
+    width: 180px;
+    background-color: #bbb;
+    display: inline-block;
+  }
+
+  .circle span {
+    height: 200px;
+    width: 200px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+.active span {
+  background-color: #000;
+  border-color: #000
+}
+
+.active .border{
+  background-color: transparent;
+  border-color: transparent transparent black transparent;
+}
+
+</style>
