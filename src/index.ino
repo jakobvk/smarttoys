@@ -1,12 +1,12 @@
 #include <WiFi.h>
 #include <Wire.h>
 // analogIn
-// #include <driver/adc.h>
+ #include <driver/adc.h>
 
-char* ssid     = "Ingo Lochmahr";
+char* ssid = "Interface Werkstatt Guest";
 char* password = "Pforzheim030";
 
-char* code = "pyramid1+pyramid2+pyramid3";
+char* code = "ball1+ball2+ball3";
 
 // Pyramid
 const int trigPin1=32;
@@ -23,13 +23,13 @@ const int lampPin=14;
 //box
 
 const int buzzerPin=2;
-const int soundSensorPin=34;
+const int soundSensorPin=36;
 
-const int soundTreshold =502;
+const int soundTreshold=0.2;
 //ball
 
 const int vibrationPin=4;
-const int vibrationSensorPin=34;
+const int vibrationSensorPin=32;
 /////
 
 WiFiServer server(80);
@@ -38,7 +38,7 @@ void setup() {
     Serial.begin(9600);
 
     //Pyramid
-    pinMode(trigPin1, OUTPUT);
+//    pinMode(trigPin1, OUTPUT);
     pinMode(echoPin1, INPUT);
     pinMode(trigPin2, OUTPUT);
     pinMode(echoPin2, INPUT);
@@ -47,6 +47,13 @@ void setup() {
 
     //Box
     pinMode(buzzerPin, OUTPUT);
+    analogReadResolution(10);
+//    analogSetAttenuation(ADC_0db);
+//    analogSetAttenuation(ADC_0db);  //For all pins
+//    analogSetPinAttenuation(A18, ADC_0db); //0db attenuation on pin A18
+//    analogSetPinAttenuation(A19, ADC_2_5db); //2.5db attenuation on pin A19
+//    analogSetPinAttenuation(A6, ADC_6db); //6db attenuation on pin A6
+//    analogSetPinAttenuation(A7, ADC_11db); //11db attenuation on pin A7
 
     //circle
     pinMode(vibrationPin, OUTPUT);
@@ -138,75 +145,180 @@ int serverFunction() {
 };
 
 int pyramidFunction() {
-  long duration1, distance1;
-  digitalWrite(trigPin1, LOW);  // Added this line
-  delayMicroseconds(2); // Added this line
-  digitalWrite(trigPin1, HIGH);
-  delayMicroseconds(10); // Added this line
-  digitalWrite(trigPin1, LOW);
-  duration1 = pulseIn(echoPin1, HIGH);
-  distance1 = (duration1/2) / 29.1;
 
-   if (distance1 >= 500 || distance1 <= 0){
-    Serial.println("Sensor1 Out of range");
+  bool returner = false;
+  digitalWrite(lampPin, LOW);
 
-    digitalWrite(lampPin, LOW);
+  if (int parameter == "input") {
 
-  }
-  else {
-    Serial.print ( "Sensor1  ");
-    Serial.print ( distance1);
-    Serial.println("cm");
+    // INPUT ECHO 1
+
+    long duration1, distance1;
+    digitalWrite(trigPin1, LOW);  // Added this line
+    delayMicroseconds(2); // Added this line
+    digitalWrite(trigPin1, HIGH);
+    delayMicroseconds(10); // Added this line
+    digitalWrite(trigPin1, LOW);
+    duration1 = pulseIn(echoPin1, HIGH);
+    distance1 = (duration1/2) / 29.1;
+
+     if (distance1 >= 500 || distance1 <= 0){
+      Serial.println("Sensor1 Out of range");
+
+      digitalWrite(lampPin, LOW);
+
+    }
+    else {
+      Serial.print ( "Sensor1  ");
+      Serial.print ( distance1);
+      Serial.println("cm");
+
+      returner = true;
+      return returner;
+    }
+    delay(100);
+
+    // INPUT ECHO 2
+
+    long duration2, distance2;
+    digitalWrite(trigPin2, LOW);  // Added this line
+    delayMicroseconds(2); // Added this line
+    digitalWrite(trigPin2, HIGH);
+    delayMicroseconds(10); // Added this line
+    digitalWrite(trigPin2, LOW);
+    duration2 = pulseIn(echoPin2, HIGH);
+    distance2= (duration2/2) / 29.1;
+
+     if (distance2 >= 500 || distance2 <= 0){
+      Serial.println("Sensor2 Out of range");
+    }
+    else {
+      Serial.print("Sensor2  ");
+      Serial.print(distance2);
+      Serial.println("cm");
+
+      returner = true;
+      return returner;
+    }
+    delay(100);
+
+      // INPUT ECHO 3
+
+    long duration3, distance3;
+    digitalWrite(trigPin3, LOW);  // Added this line
+    delayMicroseconds(2); // Added this line
+    digitalWrite(trigPin3, HIGH);
+    delayMicroseconds(10); // Added this line
+    digitalWrite(trigPin3, LOW);
+    duration3 = pulseIn(echoPin3, HIGH);
+    distance3= (duration3/2) / 29.1;
+
+     if (distance3 >= 500 || distance3 <= 0){
+      Serial.println("Sensor3 Out of range");
+    }
+    else {
+      Serial.print("Sensor3  ");
+      Serial.print(distance3);
+      Serial.println("cm");
+
+      returner = true;
+      return returner;
+    }
+
+  } else if (int parameter == "output") {
 
     digitalWrite(lampPin, HIGH);
+    delay(1000);
+    break;
+  } else if (int parameter == "both") {
 
-  }
-  delay(100);
-long duration2, distance2;
-  digitalWrite(trigPin2, LOW);  // Added this line
-  delayMicroseconds(2); // Added this line
-  digitalWrite(trigPin2, HIGH);
-  delayMicroseconds(10); // Added this line
-  digitalWrite(trigPin2, LOW);
-  duration2 = pulseIn(echoPin2, HIGH);
-  distance2= (duration2/2) / 29.1;
+    long duration1, distance1;
+    digitalWrite(trigPin1, LOW);  // Added this line
+    delayMicroseconds(2); // Added this line
+    digitalWrite(trigPin1, HIGH);
+    delayMicroseconds(10); // Added this line
+    digitalWrite(trigPin1, LOW);
+    duration1 = pulseIn(echoPin1, HIGH);
+    distance1 = (duration1/2) / 29.1;
 
-   if (distance2 >= 500 || distance2 <= 0){
-    Serial.println("Sensor2 Out of range");
-  }
-  else {
-    Serial.print("Sensor2  ");
-    Serial.print(distance2);
-    Serial.println("cm");
-  }
-  delay(100);
+     if (distance1 >= 500 || distance1 <= 0){
+      Serial.println("Sensor1 Out of range");
 
-  long duration3, distance3;
-  digitalWrite(trigPin3, LOW);  // Added this line
-  delayMicroseconds(2); // Added this line
-  digitalWrite(trigPin3, HIGH);
-  delayMicroseconds(10); // Added this line
-  digitalWrite(trigPin3, LOW);
-  duration3 = pulseIn(echoPin3, HIGH);
-  distance3= (duration3/2) / 29.1;
+      digitalWrite(lampPin, LOW);
 
-   if (distance3 >= 500 || distance3 <= 0){
-    Serial.println("Sensor3 Out of range");
+    }
+    else {
+      Serial.print ( "Sensor1  ");
+      Serial.print ( distance1);
+      Serial.println("cm");
+
+      digitalWrite(lampPin, HIGH);
+
+    }
+    delay(100);
+    long duration2, distance2;
+    digitalWrite(trigPin2, LOW);  // Added this line
+    delayMicroseconds(2); // Added this line
+    digitalWrite(trigPin2, HIGH);
+    delayMicroseconds(10); // Added this line
+    digitalWrite(trigPin2, LOW);
+    duration2 = pulseIn(echoPin2, HIGH);
+    distance2= (duration2/2) / 29.1;
+
+     if (distance2 >= 500 || distance2 <= 0){
+      Serial.println("Sensor2 Out of range");
+    }
+    else {
+      Serial.print("Sensor2  ");
+      Serial.print(distance2);
+      Serial.println("cm");
+
+      digitalWrite(lampPin, HIGH);
+    }
+    delay(100);
+
+    long duration3, distance3;
+    digitalWrite(trigPin3, LOW);  // Added this line
+    delayMicroseconds(2); // Added this line
+    digitalWrite(trigPin3, HIGH);
+    delayMicroseconds(10); // Added this line
+    digitalWrite(trigPin3, LOW);
+    duration3 = pulseIn(echoPin3, HIGH);
+    distance3= (duration3/2) / 29.1;
+
+     if (distance3 >= 500 || distance3 <= 0){
+      Serial.println("Sensor3 Out of range");
+    }
+    else {
+      Serial.print("Sensor3  ");
+      Serial.print(distance3);
+      Serial.println("cm");
+
+      digitalWrite(lampPin, HIGH);
+    }
   }
-  else {
-    Serial.print("Sensor3  ");
-    Serial.print(distance3);
-    Serial.println("cm");
-  }
+
   delay(100);
 };
 
 // BOX FUNCTIONS
 int boxFunction() {
+  int returner = false;
+  if (int parameter == "input") {
+    int soundVolume = analogRead(soundSensorPin);
+    Serial.println(soundVolume); // Print the voltage.
+
+    delay(50);
+
+    if(soundVolume<=soundTreshold) {
+       returner = true;
+       return returner;
+    }
+  }
   int soundVolume = analogRead(soundSensorPin);
   Serial.println(soundVolume); // Print the voltage.
 
-  delay(10);
+  delay(50);
 
   if(soundVolume<=soundTreshold) {
      digitalWrite(buzzerPin, LOW);
@@ -217,16 +329,33 @@ int boxFunction() {
 
 // BALL FUNCTIONS
 
-int ballFunction() {
+int ballFunction(int parameter) {
   digitalWrite(vibrationPin, LOW);
-  // Read Piezo ADC value in, and convert it to a voltage
-  int piezoADC = analogRead(vibrationSensorPin);
-  float piezoV = piezoADC / 1023.0 * 5.0;
-  Serial.println(piezoV); // Print the voltage.
-  if (piezoV == 0.01 || piezoV > 0.01) {
-      digitalWrite(vibrationPin, HIGH);
+  bool returner = false;
+  if (int parameter == "input") {
+    // Read Piezo ADC value in, and convert it to a voltage
+    int piezoADC = analogRead(vibrationSensorPin);
+    float piezoV = piezoADC / 1023.0 * 5.0;
+    Serial.println(piezoV); // Print the voltage.
+    if (piezoV == 0.01 || piezoV > 0.01) {
+        digitalWrite(vibrationPin, HIGH);
+        returner = true;
+        Serial.println("INPUT SENSORED");
+        return returner;
+    }
+  } else if (int parameter == "output") {
+    digitalWrite(vibrationPin, HIGH);
+    delay(1000);
+    break;
+  } else if (int parameter == "both") {
+    // Read Piezo ADC value in, and convert it to a voltage
+    int piezoADC = analogRead(vibrationSensorPin);
+    float piezoV = piezoADC / 1023.0 * 5.0;
+    Serial.println(piezoV); // Print the voltage.
+    if (piezoV == 0.01 || piezoV > 0.01) {
+        digitalWrite(vibrationPin, HIGH);
+    }
   }
-
   delay(100);
 }
 
@@ -234,10 +363,20 @@ void loop(){
  serverFunction();
  if (code == "pyramid1+pyramid2+pyramid3") {
     Serial.println("Pyramidx3"); // Print the voltage.
-    pyramidFunction();
+    pyramidFunction("both");
   } else if (code == "box1+box2+box3"){
    boxFunction();
- } else {
+ } else if (code == "ball1+ball2+ball3"){
+  ballFunction("both");
+}  else if (code == "pyramid1+pyramid2+box3"){
+  int pyramidPyramidInput = pyramidFunction("input");
+  if (pyramidPyramidInput) {
+    boxFunction("output");
+    delay(1000);
+    break;
+  }
+ }
+ else {
         Serial.println("no FUNCTION");
         Serial.println(code);
   }
