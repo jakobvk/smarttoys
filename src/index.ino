@@ -6,7 +6,7 @@
 char* ssid     = "Ingo Lochmahr";
 char* password = "Pforzheim030";
 
-char* code = "";
+char* code = "pyramid1+pyramid2+pyramid3";
 
 // Pyramid
 const int trigPin1=32;
@@ -16,9 +16,9 @@ const int trigPin2=27;
 const int echoPin2=26;
 
 const int trigPin3=25;
-const int echoPin3=33;
+const int echoPin3=33;//23!!!!!!!!!
 
-const int lampPin=21;
+const int lampPin=14;
 
 //box
 
@@ -180,6 +180,25 @@ long duration2, distance2;
     Serial.println("cm");
   }
   delay(100);
+
+  long duration3, distance3;
+  digitalWrite(trigPin3, LOW);  // Added this line
+  delayMicroseconds(2); // Added this line
+  digitalWrite(trigPin3, HIGH);
+  delayMicroseconds(10); // Added this line
+  digitalWrite(trigPin3, LOW);
+  duration3 = pulseIn(echoPin3, HIGH);
+  distance3= (duration3/2) / 29.1;
+
+   if (distance3 >= 500 || distance3 <= 0){
+    Serial.println("Sensor3 Out of range");
+  }
+  else {
+    Serial.print("Sensor3  ");
+    Serial.print(distance3);
+    Serial.println("cm");
+  }
+  delay(100);
 };
 
 // BOX FUNCTIONS
@@ -214,8 +233,12 @@ int ballFunction() {
 void loop(){
  serverFunction();
  if (code == "pyramid1+pyramid2+pyramid3") {
+    Serial.println("Pyramidx3"); // Print the voltage.
     pyramidFunction();
   } else if (code == "box1+box2+box3"){
    boxFunction();
- };
+ } else {
+        Serial.println("no FUNCTION");
+        Serial.println(code);
+  }
 }
