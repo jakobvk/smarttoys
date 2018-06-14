@@ -50,6 +50,13 @@ const int threshold = 100;
 uint8_t messageCode = 00;
 //
 
+
+//
+// ----------------------------------------- SERVER and ESP-NOW protocoll --------------------------------------------------
+//
+
+
+
 // Init ESP Now with fallback
 void InitESPNow() {
   if (esp_now_init() == ESP_OK) {
@@ -78,49 +85,6 @@ void configDeviceAP() {
   }
 }
 
-void setup() {
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, LOW);
-
-
-  Serial.println("");
-  Serial.println("WiFi connected.");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
-  Serial.begin(115200);
-  Serial.println("ESPNow/Basic/Slave Example");
-  //Set device in AP mode to begin with
-  WiFi.mode(WIFI_AP);
-
-
-
-  Serial.println();
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  // configure device AP mode
-  configDeviceAP();
-  // This is the mac address of the Slave in AP Mode
-  Serial.print("AP MAC: "); Serial.println(WiFi.softAPmacAddress());
-  // Init ESPNow with a fallback logic
-  InitESPNow();
-  // Once ESPNow is successfully Init, we will register for recv CB to
-  // get recv packer info.
-  esp_now_register_recv_cb(OnDataRecv);
-
-  scanNetwork();
-
-  manageSlave();
-
-}
 
 uint8_t data = 33;
 
@@ -154,83 +118,6 @@ for (int i = 0; i < SlaveCnt; i++) {
 
 }
 
-
-  // int8_t scanResults = WiFi.scanNetworks();
-  //
-  // Serial.println("RESULTS");
-  // Serial.println((uint8_t) scanResults);
-//   // if (scanResults == 0) {
-//   //   Serial.println("No WiFi devices in AP Mode found");
-//   // } else {
-//   //   Serial.print("Found "); Serial.print(scanResults); Serial.println(" devices ");
-//   //   for (int i = 0; i < scanResults; ++i) {
-//   //     // Print SSID and RSSI for each device found
-//   //     String SSID = WiFi.SSID(i);
-//   //     int32_t RSSI = WiFi.RSSI(i);
-//   //     String BSSIDstr = WiFi.BSSIDstr(i);
-//   //
-//   //     // if (PRINTSCANRESULTS) {
-//   //     //   Serial.print(i + 1); Serial.print(": "); Serial.print(SSID); Serial.print(" ["); Serial.print(BSSIDstr); Serial.print("]"); Serial.print(" ("); Serial.print(RSSI); Serial.print(")"); Serial.println("");
-//   //     // }
-//   //     delay(10);
-//   //     // Check if the current device starts with `Slave`
-//   //       // SSID of interest
-//   //       Serial.print(i + 1); Serial.print(": "); Serial.print(SSID); Serial.print(" ["); Serial.print(BSSIDstr); Serial.print("]"); Serial.print(" ("); Serial.print(RSSI); Serial.print(")"); Serial.println("");
-//   //       // Get BSSID => Mac Address of the Slave
-//   //       int mac[6];
-//   //
-//   //       if ( 6 == sscanf(BSSIDstr.c_str(), "%x:%x:%x:%x:%x:%x%c",  &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5] ) ) {
-//   //         for (int ii = 0; ii < 6; ++ii ) {
-//   //           slaves[SlaveCnt].peer_addr[ii] = (uint8_t) mac[ii];
-//   //         }
-//   //       }
-//   //       slaves[SlaveCnt].channel = CHANNEL; // pick a channel
-//   //       slaves[SlaveCnt].encrypt = 0; // no encryption
-//   //       SlaveCnt++;
-//   //
-//     // }
-//   }
-//
-//   Serial.println("Trying to send to: ");
-//   Serial.println((uint8_t) *mac);
-//   // boolean canIFindPeer = esp_now_is_peer_exist(mac);
-//   // Serial.println("IT IS: ");Serial.println(canIFindPeer);
-//   esp_err_t canIFindPeer = esp_now_get_peer_num(0);
-//   Serial.println("IT IS: ");Serial.println(canIFindPeer);
-//
-//   Serial.print("PEER: ");
-//   if (canIFindPeer = ESP_OK) {
-//     Serial.println("succeed");
-//   } else if (canIFindPeer = ESP_ERR_ESPNOW_NOT_INIT) {
-//     Serial.println("ESPNOW is not initialized");
-//   } else if (canIFindPeer = ESP_ERR_ESPNOW_ARG) {
-//     Serial.println("invalid argument");
-//   };
-//
-//   // Serial.print(mac);
-//       uint8_t dataR = 33;
-// //       uint8_t senderAddress = (uint8_t)atoi(mac);
-// // //      char tester = printf("%d", mac);
-// //       Serial.println(senderAddress);
-//     esp_err_t result = esp_now_send(mac, &dataR, sizeof(dataR));
-//    Serial.print("Send Status: ");
-//    if (result == ESP_OK) {
-//      Serial.println("Success");
-//    } else if (result == ESP_ERR_ESPNOW_NOT_INIT) {
-//      // How did we get so far!!
-//      Serial.println("ESPNOW not Init.");
-//    } else if (result == ESP_ERR_ESPNOW_ARG) {
-//      Serial.println("Invalid Argument");
-//    } else if (result == ESP_ERR_ESPNOW_INTERNAL) {
-//      Serial.println("Internal Error");
-//    } else if (result == ESP_ERR_ESPNOW_NO_MEM) {
-//      Serial.println("ESP_ERR_ESPNOW_NO_MEM");
-//    } else if (result == ESP_ERR_ESPNOW_NOT_FOUND) {
-//      Serial.println("Peer not found.");
-//    } else {
-//      Serial.println("Not sure what happened");
-//    }
-//    delay(100);
  }
 // // callback when data is recv from Master
 void OnDataRecv(const uint8_t *mac_addr, const uint8_t *data, int data_len) {
@@ -339,44 +226,141 @@ if (SlaveCnt > 0) {
 }
 
 //
-// THE FUNCTION PART
+// ----------------------------------------- SETUP --------------------------------------------------
 //
 
+void setup() {
 
+  // physical box setup
+  pinMode(ledPin, OUTPUT);  // just for
+  digitalWrite(ledPin, LOW); // debugging
+
+  pinMode(vibrationPin, OUTPUT);
+  int sensorReading = 0; // variable will change on read
+  //
+
+
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  Serial.begin(115200);
+  Serial.println("ESPNow/Basic/Slave Example");
+  //Set device in AP mode to begin with
+  WiFi.mode(WIFI_AP);
+
+
+  // TODO: Move wifi out of setup in seperate function
+
+  Serial.println();
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  // configure device AP mode
+  configDeviceAP();
+  // This is the mac address of the Slave in AP Mode
+  Serial.print("AP MAC: "); Serial.println(WiFi.softAPmacAddress());
+  // Init ESPNow with a fallback logic
+  InitESPNow();
+  // Once ESPNow is successfully Init, we will register for recv CB to
+  // get recv packer info.
+  esp_now_register_recv_cb(OnDataRecv);
+
+  scanNetwork();
+
+  manageSlave();
+
+}
+
+//
+// ----------------------------------------- Physical Function Part --------------------------------------------------
+//
+
+// create a fuction named ballFunction. Its takes a char parameter that can be "input", "output" or "both"
 int ballFunction(char* parameter) {
+
   digitalWrite(vibrationPin, LOW);
-  bool returner = false;
+  bool returner = false;  // set boolean variable that gets returned as true or false
+
+  int sensorReading = 0;
+
+
   if (parameter == "input") {
-    // Read Piezo ADC value in, and convert it to a voltage
-    int piezoADC = analogRead(vibrationSensorPin);
-    float piezoV = piezoADC / 1023.0 * 5.0;
-    Serial.println(piezoV); // Print the voltage.
-    if (piezoV == 0.01 || piezoV > 0.01) {
+
+    Serial.println("");
+    Serial.println("starting Ball InputFunction");
+    Serial.println("");
+
+    sensorReading = analogRead(vibrationSensorPin); // Read Piezo ADC value in, and convert it to a voltage
+    Serial.println(sensorReading); // Print the voltage.
+
+    if (sensorReading >= threshold) {
         digitalWrite(vibrationPin, HIGH);
-        returner = true;
-        Serial.println("INPUT SENSORED");
+        Serial.println("INPUT SENSORED over treshold");
+
+        returner = true;  // set return varibla to true
         return returner;
+    } else {
+      Serial.println("under treshold");
+      digitalWrite(vibrationPin, LOW);
+      delay(10);
     }
   } else if (parameter == "output") {
+
+    Serial.println("");
+    Serial.println("starting Ball outputFunction");
+    Serial.println("");
+
     digitalWrite(vibrationPin, HIGH);
-    delay(3000);
-    return true;
+    delay(3000); // Delay might be helpful to make it feel right
+    digitalWrite(vibrationPin, LOW);
+
+    returner = true;
+    return returner;
   } else if (parameter == "both") {
-    // Read Piezo ADC value in, and convert it to a voltage
-    int piezoADC = analogRead(vibrationSensorPin);
-    float piezoV = piezoADC / 1023.0 * 5.0;
-    Serial.println(piezoV); // Print the voltage.
-    if (piezoV == 0.01 || piezoV > 0.01) {
+
+    Serial.println("");
+    Serial.println("starting Ball bothFunction");
+    Serial.println("");
+
+    sensorReading = analogRead(vibrationSensorPin); // Read Piezo ADC value in, and convert it to a voltage
+    Serial.println(sensorReading); // Print the voltage.
+
+    if (sensorReading >= threshold) {
+
         digitalWrite(vibrationPin, HIGH);
+        Serial.println("INPUT SENSORED over treshold");
+
+    }  else {
+      Serial.println("under treshold");
+      digitalWrite(vibrationPin, LOW);
+      delay(10);
     }
   }
   delay(100);
 }
 
 void loop() {
+
+  // protocoll code explanation
+  // 1 == KUGEL; 2 == PYRAMIDE; 3 == BOX;
+  // 1 == INPUT; 2 == OUTPUT; 3 == BOTH;
+
   delay(200);
   if (messageCode == 11) {
-    // input mode
+
+    // function == INPUT
+    Serial.print("Message Code: ");Serial.print(messageCode);Serial.print(" INPUT");
+
+
     int triggerMessage = ballFunction("input"); // ball function should return true
 
     if (triggerMessage) {
@@ -384,21 +368,31 @@ void loop() {
       delay(200);
       messageCode = 0; // stop Input function
     }
+
   } else if (messageCode == 12){
+
+    // function == OUTPUT
+    Serial.print("Message Code: ");Serial.print(messageCode);Serial.print(" OUTPUT");
+
     int triggerMessage = ballFunction("output"); // ball function should return true
+
     sendData(&messageCode);  // send return message
     delay(200);
     messageCode = 0; // stop output function
+
   } else if (messageCode == 13) {
-    // ballFunction("BOTH");
-      Serial.print("Message Code: ");Serial.print(messageCode);
+
+    // function == BOTH
+      Serial.print("Message Code: ");Serial.print(messageCode);Serial.print(" BOTH");
 
       ballFunction("both");
+      // the following can sometimes be used for debug
       // digitalWrite(ledPin, HIGH);
       // delay(200);
       // digitalWrite(ledPin, LOW);
       // delay(200);
+
   } else {
-    // Chill
+    // Chill and do nothing
   }
 }
