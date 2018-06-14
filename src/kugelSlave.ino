@@ -39,11 +39,16 @@ int SlaveCnt = 0;
 
 #define CHANNEL 1
 
-//ball
+// Ball
 
-const int vibrationPin=4;
-const int vibrationSensorPin=32;
-/////
+const int vibrationPin=13;
+const int vibrationSensorPin=33;
+const int threshold = 100;
+
+
+// Logik
+uint8_t messageCode = 00;
+//
 
 // Init ESP Now with fallback
 void InitESPNow() {
@@ -238,47 +243,14 @@ void OnDataRecv(const uint8_t *mac_addr, const uint8_t *data, int data_len) {
   sendData(mac_addr);
 
   // TODO: remoe this after test environment
-  if (*data) {
-        digitalWrite(ledPin, HIGH);
-    delay(200);
-    digitalWrite(ledPin, LOW);
-      delay(200);
-  }
-  if (*data == 13) {
-
-  }
+  // if (*data) {
+  //       digitalWrite(ledPin, HIGH);
+  //   delay(200);
+  //   digitalWrite(ledPin, LOW);
+  //     delay(200);
+  // }
+  messageCode = *data;
   //
-
-}
-
-int ballFunction(char* parameter) {
-  digitalWrite(vibrationPin, LOW);
-  bool returner = false;
-  if (parameter == "input") {
-    // Read Piezo ADC value in, and convert it to a voltage
-    int piezoADC = analogRead(vibrationSensorPin);
-    float piezoV = piezoADC / 1023.0 * 5.0;
-    Serial.println(piezoV); // Print the voltage.
-    if (piezoV == 0.01 || piezoV > 0.01) {
-        digitalWrite(vibrationPin, HIGH);
-        returner = true;
-        Serial.println("INPUT SENSORED");
-        return returner;
-    }
-  } else if (parameter == "output") {
-    digitalWrite(vibrationPin, HIGH);
-    delay(1000);
-    return true;
-  } else if (parameter == "both") {
-    // Read Piezo ADC value in, and convert it to a voltage
-    int piezoADC = analogRead(vibrationSensorPin);
-    float piezoV = piezoADC / 1023.0 * 5.0;
-    Serial.println(piezoV); // Print the voltage.
-    if (piezoV == 0.01 || piezoV > 0.01) {
-        digitalWrite(vibrationPin, HIGH);
-    }
-  }
-  delay(100);
 }
 
 void scanNetwork () {
@@ -366,8 +338,67 @@ if (SlaveCnt > 0) {
 }
 }
 
+//
+// THE FUNCTION PART
+//
+
+
+int ballFunction(char* parameter) {
+  digitalWrite(vibrationPin, LOW);
+  bool returner = false;
+  if (parameter == "input") {
+    // Read Piezo ADC value in, and convert it to a voltage
+    int piezoADC = analogRead(vibrationSensorPin);
+    float piezoV = piezoADC / 1023.0 * 5.0;
+    Serial.println(piezoV); // Print the voltage.
+    if (piezoV == 0.01 || piezoV > 0.01) {
+        digitalWrite(vibrationPin, HIGH);
+        returner = true;
+        Serial.println("INPUT SENSORED");
+        return returner;
+    }
+  } else if (parameter == "output") {
+    digitalWrite(vibrationPin, HIGH);
+    delay(3000);
+    return true;
+  } else if (parameter == "both") {
+    // Read Piezo ADC value in, and convert it to a voltage
+    int piezoADC = analogRead(vibrationSensorPin);
+    float piezoV = piezoADC / 1023.0 * 5.0;
+    Serial.println(piezoV); // Print the voltage.
+    if (piezoV == 0.01 || piezoV > 0.01) {
+        digitalWrite(vibrationPin, HIGH);
+    }
+  }
+  delay(100);
+}
+
 void loop() {
   delay(200);
+  if (messageCode == 11) {
+    // input mode
+    int triggerMessage = ballFunction("input"); // ball function should return true
 
-  // Chill
+    if (triggerMessage) {
+      sendData(&messageCode);  // send return message
+      delay(200);
+      messageCode = 0; // stop Input function
+    }
+  } else if (messageCode == 12){
+    int triggerMessage = ballFunction("output"); // ball function should return true
+    sendData(&messageCode);  // send return message
+    delay(200);
+    messageCode = 0; // stop output function
+  } else if (messageCode == 13) {
+    // ballFunction("BOTH");
+      Serial.print("Message Code: ");Serial.print(messageCode);
+
+      ballFunction("both");
+      // digitalWrite(ledPin, HIGH);
+      // delay(200);
+      // digitalWrite(ledPin, LOW);
+      // delay(200);
+  } else {
+    // Chill
+  }
 }
